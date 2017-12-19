@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/ppoudel/CLionProjects/CompleteVisitability/main.cpp
+iostream
+-
+stack
+-
+ctime
+-
+cmath
+-
+cstdlib
+-
+

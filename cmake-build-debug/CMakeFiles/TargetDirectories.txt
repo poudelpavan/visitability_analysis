@@ -1,0 +1,3 @@
+/home/ppoudel/CLionProjects/CompleteVisitability/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/ppoudel/CLionProjects/CompleteVisitability/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/ppoudel/CLionProjects/CompleteVisitability/cmake-build-debug/CMakeFiles/CompleteVisitability.dir
