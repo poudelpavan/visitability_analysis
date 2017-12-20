@@ -463,150 +463,191 @@ Point move(Point a, Point *b, Point *c, int tot_b, int tot_c, Point *internals, 
     return a;
 }
 int main() {
-    int n=0, count = 0,h=0;
-    int *totalPoints = new int[n];
-    int *internalsize = new int[n];
-    srand(time(NULL));
+    int count = 0, tot_round = 0, totalrobots = 0, n=0;
     std::cout << "*** TIME ANALYSIS OF COMPLETE VISITABILITY PROBLEM ***" << std::endl;
     std::cout << "Enter the number of robots: ";
-    std::cin >> n;
-    int range = sqrt(n) * 2;
-    Point *robots = new Point[n];
-    Point **ch_layers = new Point* [n];
-    Point **internals = new Point* [n];
-    for(int i = 0;i<n;i++){
-        ch_layers[i] = new Point[n];
-        internals[i] = new Point[n];
-        totalPoints[i]=0;
-    }
-    cout<<"The robots points are:"<<endl;
-    for(int i = 0; i < n; i++){
-        label:Point newpoint = generateCoord(range);
-        for(int j = i-1;j>=0;j--){
-            if(robots[j].x == newpoint.x && robots[j].y == newpoint.y){
-                goto label;
-            }
+    std::cin >> totalrobots;
+    srand(time(0));
+
+    while(count < 2) {
+        n = totalrobots;
+        int h = 0;
+        int *totalPoints = new int[n];
+        int *internalsize = new int[n];
+
+
+        int range = (int) sqrt(n) * 2;
+        Point *robots = new Point[n];
+        Point **ch_layers = new Point *[n];
+        Point **internals = new Point *[n];
+        for (int i = 0; i < n; i++) {
+            ch_layers[i] = new Point[n];
+            internals[i] = new Point[n];
+            totalPoints[i] = 0;
         }
-        robots[i].x = newpoint.x;
-        robots[i].y = newpoint.y;
-        cout << "("<<robots[i].x<<", "<<robots[i].y<<") ";
-    }
-    cout<<endl;
+        //cout << "The robots points are:" << endl;
+        for (int i = 0; i < n; i++) {
+            label:
+            Point newpoint = generateCoord(range);
+            for (int j = i - 1; j >= 0; j--) {
+                if (robots[j].x == newpoint.x && robots[j].y == newpoint.y) {
+                    goto label;
+                }
+            }
+            robots[i].x = newpoint.x;
+            robots[i].y = newpoint.y;
+            //cout << "(" << robots[i].x << ", " << robots[i].y << ") ";
+        }
+        //cout << endl;
 /*
     Point points[] = {{0, 3},{0, 1}, {0, 2}, {1, 0}, {2, 3}, {3, 1}, {2, 2}, {1, 1}, {2, 1},
                       {3, 0}, {0, 0}, {3, 3}};
     n = sizeof(points)/sizeof(points[0]);
     convexHull(points, n);
   */
-    while(n>0) {
-        Point *oldrobots = new Point[n];
-        internals[h] = new Point[n];
-        for(int i =0;i<n;i++){
-            oldrobots[i].x = robots[i].x;
-            oldrobots[i].y = robots[i].y;
-            internals[h][i].x = robots[i].x;
-            internals[h][i].y = robots[i].y;
-        }
-        internalsize[h] = n;
-        stack<Point> s = convexHull(robots, n);
-        cout << "The convex hull points are (out of total " << n <<"): "<< endl;
+        int isize = totalrobots;
+        internalsize[0] = isize;
+        while (n > 0) {
 
-        int h_count=0;
+            //Point *oldrobots = new Point[n];
+            internals[h] = new Point[n];
+            for (int i = 0; i < n; i++) {
+                //oldrobots[i].x = robots[i].x;
+                //oldrobots[i].y = robots[i].y;
+                internals[h][i].x = robots[i].x;
+                internals[h][i].y = robots[i].y;
+            }
 
-        while (!s.empty())
-        {
-            Point p = s.top();
-            cout << "(" << p.x << ", " << p.y <<")";
-            ch_layers[h][h_count] = p;
-            s.pop();
-            h_count++;
-        }
-        totalPoints[h]=h_count;
-        cout<< endl;
+            cout << "The convex hull points are (out of total " << n << "): Layer " << h << endl;
 
-        Point *newrobots = new Point[n-h_count];
-        int flag = 0, k =0;
-        for(int i = 0;i<n;i++){
-            Point p = oldrobots[i];
-            for(int j = 0;j<h_count;j++){
-                Point q = ch_layers[h][j];
-                if(p.x == q.x && p.y == q.y){
-                    flag = 1;
-                    //break;
+            int h_count = 0;
+
+            if (h == 7) {
+                stack<Point> s = convexHull(robots, n);
+            }
+            stack<Point> s = convexHull(robots, n);
+
+            while (!s.empty()) {
+                Point p = s.top();
+
+                ch_layers[h][h_count].x = p.x;
+                ch_layers[h][h_count].y = p.y;
+                s.pop();
+                h_count++;
+            }
+            for (int i = 0; i < h_count; i++) {
+                std::cout << "(" << ch_layers[h][i].x << ", " << ch_layers[h][i].y << ")";
+            }
+            isize = isize - h_count;
+            internalsize[h + 1] = isize;
+            totalPoints[h] = h_count;
+            cout << endl;
+
+            Point *newrobots = new Point[n - h_count];
+            int flag = 0, k = 0;
+            for (int i = 0; i < n; i++) {
+                //Point p = oldrobots[i];
+                Point p = internals[h][i];
+                for (int j = 0; j < h_count; j++) {
+                    Point q = ch_layers[h][j];
+                    if (p.x == q.x && p.y == q.y) {
+                        flag = 1;
+                        //break;
+                    }
+                }
+                if (flag == 1) {
+                    flag = 0;
+                } else {
+                    newrobots[k].x = p.x;
+                    newrobots[k].y = p.y;
+                    flag = 0;
+                    k++;
                 }
             }
-            if(flag == 1){
-                flag = 0;
+            //if((n - h_count) > 0) {
+            //    cout << "New set of points:" << endl;
+            //}
+            robots = new Point[n - h_count];
+            for (int i = 0; i < n - h_count; i++) {
+                robots[i].x = newrobots[i].x;
+                robots[i].y = newrobots[i].y;
+                //    cout<<"("<<robots[i].x<<", "<<robots[i].y<<") ";
             }
-            else{
-                newrobots[k].x = p.x;
-                newrobots[k].y = p.y;
-                flag = 0;
-                k++;
-            }
+
+            //cout<<endl;
+            //ch_layers[x] = printHullPoints(s);
+            //robots = removeHullPoints(robots, ch_layers[x],n,h_count);
+
+            n = n - h_count;
+            h++;
         }
-        //if((n - h_count) > 0) {
-        //    cout << "New set of points:" << endl;
-        //}
-        robots = new Point[n - h_count];
-        for(int i = 0; i < n - h_count; i ++){
-            robots[i].x = newrobots[i].x;
-            robots[i].y = newrobots[i].y;
-        //    cout<<"("<<robots[i].x<<", "<<robots[i].y<<") ";
+        cout << endl;
+        cout << "Convex hull layers, h = " << h << endl << endl;
+        for (int i = 0; i < h; i++) {
+            cout << "size of internal layer " << i << ": " << internalsize[i] << endl;
         }
 
-        //cout<<endl;
-        //ch_layers[x] = printHullPoints(s);
-        //robots = removeHullPoints(robots, ch_layers[x],n,h_count);
-        n = n - h_count;
-        h++;
+        //inward wave result, innermost layer terminate
+        int terminate = h - 1;
+
+        //outward wave
+        int round = 0, iteration = 1;
+        while (terminate > 0) {
+            if (totalrobots <= 250)
+                cout << "iteration " << iteration << endl;
+            for (int i = 0; i < terminate; i++) {
+                bool mov = false;
+                if (totalrobots <= 250) {
+                    cout << "Before move, Layer " << i << ": ";
+                    for (int j = 0; j < totalPoints[i]; j++) {
+                        cout << "(" << ch_layers[i][j].x << ", " << ch_layers[i][j].y << ") ";
+                    }
+                }
+                for (int j = 0; j < totalPoints[i]; j++) {
+                    Point move_point = move(ch_layers[i][j], ch_layers[i], ch_layers[i + 1], totalPoints[i],
+                                            totalPoints[i + 1], internals[i + 1], internalsize[i + 1]);
+                    if (move_point.x != ch_layers[i][j].x || move_point.y != ch_layers[i][j].y) {
+                        ch_layers[i][j].x = move_point.x;
+                        ch_layers[i][j].y = move_point.y;
+                        mov = true;
+                    }
+                }
+                if (totalrobots <= 250) {
+                    cout << "After Move, Layer " << i << ": ";
+                    for (int j = 0; j < totalPoints[i]; j++) {
+                        cout << "(" << ch_layers[i][j].x << ", " << ch_layers[i][j].y << ") ";
+                    }
+                    cout << endl;
+                }
+                if (mov) {
+                    round++;
+
+                    for (int k = 0; k < totalPoints[i]; k++) {
+                        internals[i][k].x = ch_layers[i][k].x;
+                        internals[i][k].y = ch_layers[i][k].y;
+                    }
+                    for (int k = 0; k < internalsize[i + 1]; k++) {
+                        internals[i][k + totalPoints[i]].x = internals[i + 1][k].x;
+                        internals[i][k + totalPoints[i]].y = internals[i + 1][k].y;
+                    }
+
+                }
+                //cout << internalsize[i + 1] << endl;
+            }
+            terminate--;
+            iteration++;
+           // if (totalrobots <= 250)
+                //cout << endl;
+        }
+
+        cout << "Total rounds: " << round << endl;
+        tot_round = tot_round + round;
+        count++;
     }
-    cout<<"Convex hull layers, h = "<< h << endl << endl;
 
-    //inward wave result, innermost layer terminate
-    int terminate = h-1;
-
-    //outward wave
-    int round = 0, iteration =1;
-    while(terminate > 0) {
-        cout<<"iteration "<<iteration<<endl;
-        for (int i = 0; i < terminate; i++) {
-            bool mov = false;
-            cout<<"Before move, Layer "<<i<<": ";
-            for(int j = 0; j < totalPoints[i];j++){
-                cout<<"("<<ch_layers[i][j].x<<", "<<ch_layers[i][j].y<<") ";
-            }
-            for(int j = 0;j<totalPoints[i];j++){
-                Point move_point = move(ch_layers[i][j], ch_layers[i], ch_layers[i+1],totalPoints[i],totalPoints[i+1],internals[i+1],internalsize[i+1]);
-                if(move_point.x != ch_layers[i][j].x || move_point.y != ch_layers[i][j].y){
-                    ch_layers[i][j].x = move_point.x;
-                    ch_layers[i][j].y = move_point.y;
-                    mov = true;
-                }
-            }
-            cout<<"After Move, Layer "<<i<<": ";
-            for(int j = 0; j < totalPoints[i];j++){
-                cout<<"("<<ch_layers[i][j].x<<", "<<ch_layers[i][j].y<<") ";
-            }
-            cout<<endl;
-            if(mov == true) {
-                round++;
-                for(int k = 0;k <totalPoints[i];k++){
-                    internals[i][k].x = ch_layers[i][k].x;
-                    internals[i][k].y = ch_layers[i][k].y;
-                }
-                for(int k = totalPoints[i];k < totalPoints[i]+ internalsize[i+1];k++){
-                    internals[i][k].x = internals[i+1][k - totalPoints[i]].x;
-                    internals[i][k].y = internals[i+1][k - totalPoints[i]].y;
-                }
-            }
-        }
-        terminate--;
-        iteration++;
-        cout<<endl;
-    }
-
-    cout<<"Total rounds: "<<round<<endl;
-
+    cout<<endl;
+    cout<<"Total number of robots: "<<totalrobots<<endl;
+    cout<<"Total rounds: "<<tot_round<<endl;
+    cout<<"Average of 50 rounds: "<<tot_round/2.0<<endl<<endl;
     return 0;
 }
