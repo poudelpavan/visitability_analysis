@@ -463,13 +463,22 @@ Point move(Point a, Point *b, Point *c, int tot_b, int tot_c, Point *internals, 
     return a;
 }
 int main() {
-    int count = 0, tot_round = 0, totalrobots = 0, n=0;
-    std::cout << "*** TIME ANALYSIS OF COMPLETE VISITABILITY PROBLEM ***" << std::endl;
+    int count = 0, tot_round = 0, totalrobots = 0, n=0, tests = 0;
+    cout<<"----------------------------------------------------------------------"<<endl<<endl;
+    std::cout << "\tTIME ANALYSIS OF COMPLETE VISITABILITY PROBLEM " << std::endl<<std::endl;
+    cout<<"----------------------------------------------------------------------"<<endl<<endl;
     std::cout << "Enter the number of robots: ";
     std::cin >> totalrobots;
+    std::cout << "\nHow many tests do you want to perform: ";
+    std::cin >> tests;
+    cout<<"----------------------------------------------------------------------"<<endl;
+    cout<<"\nTotal number of robots: "<<totalrobots<<endl<<endl;    
+    cout <<"Tests \t\tConvex hull layers (h)\t\tRounds (Outward Wave)" << endl;
+    cout<<"----------------------------------------------------------------------"<<endl;
     srand(time(0));
 
-    while(count < 2) {
+
+    while(count < tests) {
         n = totalrobots;
         int h = 0;
         int *totalPoints = new int[n];
@@ -518,7 +527,7 @@ int main() {
                 internals[h][i].y = robots[i].y;
             }
 
-            cout << "The convex hull points are (out of total " << n << "): Layer " << h << endl;
+            //cout << "The convex hull points are (out of total " << n << "): Layer " << h << endl;
 
             int h_count = 0;
 
@@ -535,13 +544,13 @@ int main() {
                 s.pop();
                 h_count++;
             }
-            for (int i = 0; i < h_count; i++) {
-                std::cout << "(" << ch_layers[h][i].x << ", " << ch_layers[h][i].y << ")";
-            }
+            //for (int i = 0; i < h_count; i++) {
+                //std::cout << "(" << ch_layers[h][i].x << ", " << ch_layers[h][i].y << ")";
+            //}
             isize = isize - h_count;
             internalsize[h + 1] = isize;
             totalPoints[h] = h_count;
-            cout << endl;
+            //cout << endl;
 
             Point *newrobots = new Point[n - h_count];
             int flag = 0, k = 0;
@@ -581,11 +590,11 @@ int main() {
             n = n - h_count;
             h++;
         }
-        cout << endl;
-        cout << "Convex hull layers, h = " << h << endl << endl;
-        for (int i = 0; i < h; i++) {
-            cout << "size of internal layer " << i << ": " << internalsize[i] << endl;
-        }
+        //cout << endl;
+        //cout << "Convex hull layers, h = " << h << endl << endl;
+        //for (int i = 0; i < h; i++) {
+        //    cout << "size of internal layer " << i << ": " << internalsize[i] << endl;
+        //}
 
         //inward wave result, innermost layer terminate
         int terminate = h - 1;
@@ -593,16 +602,16 @@ int main() {
         //outward wave
         int round = 0, iteration = 1;
         while (terminate > 0) {
-            if (totalrobots <= 250)
-                cout << "iteration " << iteration << endl;
+          //  if (totalrobots <= 250)
+          //      cout << "iteration " << iteration << endl;
             for (int i = 0; i < terminate; i++) {
                 bool mov = false;
-                if (totalrobots <= 250) {
-                    cout << "Before move, Layer " << i << ": ";
-                    for (int j = 0; j < totalPoints[i]; j++) {
-                        cout << "(" << ch_layers[i][j].x << ", " << ch_layers[i][j].y << ") ";
-                    }
-                }
+            //    if (totalrobots <= 250) {
+              //      cout << "Before move, Layer " << i << ": ";
+                //    for (int j = 0; j < totalPoints[i]; j++) {
+                  //      cout << "(" << ch_layers[i][j].x << ", " << ch_layers[i][j].y << ") ";
+                    //}
+                //}
                 for (int j = 0; j < totalPoints[i]; j++) {
                     Point move_point = move(ch_layers[i][j], ch_layers[i], ch_layers[i + 1], totalPoints[i],
                                             totalPoints[i + 1], internals[i + 1], internalsize[i + 1]);
@@ -611,14 +620,14 @@ int main() {
                         ch_layers[i][j].y = move_point.y;
                         mov = true;
                     }
-                }
+                }/*
                 if (totalrobots <= 250) {
                     cout << "After Move, Layer " << i << ": ";
                     for (int j = 0; j < totalPoints[i]; j++) {
                         cout << "(" << ch_layers[i][j].x << ", " << ch_layers[i][j].y << ") ";
                     }
                     cout << endl;
-                }
+                }*/
                 if (mov) {
                     round++;
 
@@ -640,14 +649,14 @@ int main() {
                 //cout << endl;
         }
 
-        cout << "Total rounds: " << round << endl;
+        cout <<"Test "<<count+1<<"\t\t\t h = "<<h<< "\t\t\t\t" << round << endl;
         tot_round = tot_round + round;
         count++;
     }
 
     cout<<endl;
-    cout<<"Total number of robots: "<<totalrobots<<endl;
-    cout<<"Total rounds: "<<tot_round<<endl;
-    cout<<"Average of 50 rounds: "<<tot_round/2.0<<endl<<endl;
+    cout<<"----------------------------------------------------------------------"<<endl;
+    cout<<"Total rounds: \t\t\t\t\t\t"<<tot_round<<endl;
+    cout<<"\nAverage of 50 rounds: \t\t\t\t\t"<<(double)tot_round/(double)tests<<endl<<endl<<endl;
     return 0;
 }
