@@ -657,6 +657,6 @@ int main() {
     cout<<endl;
     cout<<"----------------------------------------------------------------------"<<endl;
     cout<<"Total rounds: \t\t\t\t\t\t"<<tot_round<<endl;
-    cout<<"\nAverage of 50 rounds: \t\t\t\t\t"<<(double)tot_round/(double)tests<<endl<<endl<<endl;
+    cout<<"\nAverage rounds of "<< tests <<" rounds: \t\t\t\t"<<(double)tot_round/(double)tests<<endl<<endl<<endl;
     return 0;
 }
