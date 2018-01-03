@@ -26,6 +26,7 @@ g++ main.cpp -o output
 ----------------------------------------------------------------------
 
 Enter the number of robots: 200
+
 Select the grid space for robot configuration:
 1. Compact square (sqrt(n) * sqrt(n))
 2. Tight square ((sqrt(n)*2) * (sqrt(n)*2))
