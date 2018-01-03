@@ -10,7 +10,7 @@ struct Point
     int x, y;
 };
 
-// A globle point needed for  sorting points with reference
+// A global point needed for  sorting points with reference
 // to  the first point Used in compare function of qsort()
 Point p0;
 
@@ -81,7 +81,7 @@ int compare(const void *vp1, const void *vp2)
     return (o == 2)? -1: 1;
 }
 
-// Prints convex hull of a set of n points.
+// Find convex hull of a set of n points using Graham Scan Algorithm.
 stack<Point> convexHull(Point points[], int n)
 {
     // Find the bottommost point
