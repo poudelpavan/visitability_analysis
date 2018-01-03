@@ -23,15 +23,19 @@ Point nextToTop(stack<Point> &S)
     S.push(p);
     return res;
 }
-// Driver program to test above functions
-/*int main()
+// Given three colinear points p, q, r, the function checks if
+// point q lies on line segment 'pr'
+bool onSegment(Point p, Point q, Point r)
 {
-    Point points[] = {{0, 3}, {1, 1}, {2, 2}, {4, 4},
-                      {0, 0}, {1, 2}, {3, 1}, {3, 3}};
-    int n = sizeof(points)/sizeof(points[0]);
-    convexHull(points, n);
-    return 0;
-}*/
+    if (q.x <= max(p.x, r.x) && q.x >= min(p.x, r.x) && q.y <= max(p.y, r.y) && q.y >= min(p.y, r.y)) {
+        float a = (r.y - p.y) * (q.x - p.x);
+        float b = (q.y - p.y) * (r.x - p.x);
+        if(a == b) {
+            return true;
+        }
+    }
+    return false;
+}
 // A utility function to swap two points
 int swap(Point &p1, Point &p2)
 {
@@ -124,12 +128,12 @@ stack<Point> convexHull(Point points[], int n)
     stack<Point> S;
     // If modified array of points has less than 3 points,
     // convex hull is not possible
-   if (m < 3) {
-       for(int i = 0;i < m;i++){
-           S.push(points[i]);
-       }
-       return S;
-   }
+    if (m < 3) {
+        for(int i = 0;i < m;i++){
+            S.push(points[i]);
+        }
+        return S;
+    }
 
     // Create an empty stack and push first three points
     // to it.
@@ -227,21 +231,47 @@ int check_neighbor(Point a, Point b){
         return 8;
     }
     else{
-        return 9;
+        return 0;
     }
 }
 
 //find nearest internal robot
-Point find_nearest_int(Point a, Point *b, int tot_b){
+Point find_nearest_int(Point a, Point* bound, int tot_b, Point* internals, int tot_int){
+    Point* int_robots = new Point[tot_int];
+    int k = 0, m = 0;
+    for(int j = 0; j < tot_int;j++){
+        Point q;
+        q.x = internals[j].x;
+        q.y = internals[j].y;
+        m = 0;
+        for(int l = 0; l < tot_b; l++){
+            Point p = bound[l % tot_b];
+            Point r = bound[(l+1) % tot_b];
+            if(onSegment(p,q,r)){
+                m = 1;
+            }
+        }
+        if(m == 0){
+            int_robots[k].x = q.x;
+            int_robots[k].y = q.y;
+            k++;
+        }
+    }
+    //cout<<"Internal robots: ";
+    //for(int i = 0;i<k;i++){
+    //    cout<<"("<<int_robots[i].x<<", "<<int_robots[i].y<<"), ";
+    //}
+    //cout<<endl;
+
     Point near;
-    near.x = b[0].x;
-    near.y = b[0].y;
-    int dist = ((a.x - b[0].x) * (a.x - b[0].x)) + ((a.y - b[0].y) * (a.y - b[0].y)), dist1 = 0;
-    for(int i =1;i< tot_b; i++){
-        dist1 = ((a.x - b[i].x) * (a.x - b[i].x)) + ((a.y - b[i].y) * (a.y - b[i].y));
+    near.x = int_robots[0].x;
+    near.y = int_robots[0].y;
+    int dist = ((a.x - int_robots[0].x) * (a.x - int_robots[0].x)) + ((a.y - int_robots[0].y) * (a.y - int_robots[0].y)), dist1 = 0;
+    for(int i =1;i< k; i++){
+        dist1 = ((a.x - int_robots[i].x) * (a.x - int_robots[i].x)) + ((a.y - int_robots[i].y) * (a.y - int_robots[i].y));
         if(dist1 < dist){
-            near.x = b[i].x;
-            near.y = b[i].y;
+            near.x = int_robots[i].x;
+            near.y = int_robots[i].y;
             dist = dist1;
         }
     }
@@ -293,29 +323,29 @@ Point move(Point a, Point *b, Point *c, int tot_b, int tot_c, Point *internals, 
             n8=1;
         }
     }
-    for(int i =0;i<tot_c;i++){
-        if(c[i].x == a.x +1 && c[i].y == a.y){
+    for(int i =0;i<intsize;i++){
+        if(internals[i].x == a.x +1 && internals[i].y == a.y){
             n1=1;
         }
-        else if(c[i].x == a.x +1 && c[i].y == a.y + 1){
-            n2=2;
+        else if(internals[i].x == a.x +1 && internals[i].y == a.y + 1){
+            n2=1;
         }
-        else if(c[i].x == a.x && c[i].y == a.y + 1){
+        else if(internals[i].x == a.x && internals[i].y == a.y + 1){
             n3=1;
         }
-        else if(c[i].x == a.x -1 && c[i].y == a.y + 1){
+        else if(internals[i].x == a.x -1 && internals[i].y == a.y + 1){
             n4=1;
         }
-        else if(c[i].x == a.x -1 && c[i].y == a.y){
+        else if(internals[i].x == a.x -1 && internals[i].y == a.y){
             n5=1;
         }
-        else if(c[i].x == a.x - 1 && c[i].y == a.y - 1){
+        else if(internals[i].x == a.x - 1 && internals[i].y == a.y - 1){
             n6=1;
         }
-        else if(c[i].x == a.x && c[i].y == a.y - 1){
+        else if(internals[i].x == a.x && internals[i].y == a.y - 1){
             n7=1;
         }
-        else if(c[i].x == a.x + 1 && c[i].y == a.y - 1){
+        else if(internals[i].x == a.x + 1 && internals[i].y == a.y - 1){
             n8=1;
         }
     }
@@ -357,8 +387,8 @@ Point move(Point a, Point *b, Point *c, int tot_b, int tot_c, Point *internals, 
         }
     }
     else{
-        Point near = find_nearest_int(a, internals, intsize);
-        //cout<<"Nearest internal of ("<<a.x<<", "<<a.y<<") is ("<<near.x<<", "<<near.y<<endl;
+        Point near = find_nearest_int(a, b, tot_b, internals, intsize);
+        //cout<<"Nearest internal of ("<<a.x<<", "<<a.y<<") is ("<<near.x<<", "<<near.y<<")"<<endl;
         //getchar();
         int neighbor = check_neighbor(near, a);
         if(neighbor == 1){
@@ -463,16 +493,26 @@ Point move(Point a, Point *b, Point *c, int tot_b, int tot_c, Point *internals, 
     return a;
 }
 int main() {
-    int count = 0, tot_round = 0, totalrobots = 0, n=0, tests = 0;
+    int count = 0, tot_round = 0, totalrobots = 0, n=0, tests = 0,space = 1;
     cout<<"----------------------------------------------------------------------"<<endl<<endl;
     std::cout << "\tTIME ANALYSIS OF COMPLETE VISITABILITY PROBLEM " << std::endl<<std::endl;
     cout<<"----------------------------------------------------------------------"<<endl<<endl;
     std::cout << "Enter the number of robots: ";
     std::cin >> totalrobots;
+    again:std::cout << "Select the grid space for robot configuration:"<<endl;
+    std::cout << "1. Compact square (sqrt(n) * sqrt(n))"<<endl;
+    std::cout << "2. Tight square ((sqrt(n)*2) * (sqrt(n)*2))"<<endl;
+    std::cout << "3. Loose square ((sqrt(n)*3) * (sqrt(n)*3))"<<endl;
+    std::cout << "Choose Option (1, 2 or 3): ";
+    std::cin >> space;
+    if(space !=1 && space !=2 && space !=3){
+        std::cout<<"Wrong choice"<<endl;
+        goto again;
+    }
     std::cout << "\nHow many tests do you want to perform: ";
     std::cin >> tests;
     cout<<"----------------------------------------------------------------------"<<endl;
-    cout<<"\nTotal number of robots: "<<totalrobots<<endl<<endl;    
+    cout<<"\nTotal number of robots: "<<totalrobots<<endl<<endl;
     cout <<"Tests \t\tConvex hull layers (h)\t\tRounds (Outward Wave)" << endl;
     cout<<"----------------------------------------------------------------------"<<endl;
     srand(time(0));
@@ -485,7 +525,7 @@ int main() {
         int *internalsize = new int[n];
 
 
-        int range = (int) sqrt(n) * 2;
+        int range = (int) sqrt(n) * space;
         Point *robots = new Point[n];
         Point **ch_layers = new Point *[n];
         Point **internals = new Point *[n];
@@ -508,12 +548,7 @@ int main() {
             //cout << "(" << robots[i].x << ", " << robots[i].y << ") ";
         }
         //cout << endl;
-/*
-    Point points[] = {{0, 3},{0, 1}, {0, 2}, {1, 0}, {2, 3}, {3, 1}, {2, 2}, {1, 1}, {2, 1},
-                      {3, 0}, {0, 0}, {3, 3}};
-    n = sizeof(points)/sizeof(points[0]);
-    convexHull(points, n);
-  */
+
         int isize = totalrobots;
         internalsize[0] = isize;
         while (n > 0) {
@@ -545,7 +580,7 @@ int main() {
                 h_count++;
             }
             //for (int i = 0; i < h_count; i++) {
-                //std::cout << "(" << ch_layers[h][i].x << ", " << ch_layers[h][i].y << ")";
+            //std::cout << "(" << ch_layers[h][i].x << ", " << ch_layers[h][i].y << ")";
             //}
             isize = isize - h_count;
             internalsize[h + 1] = isize;
@@ -602,26 +637,43 @@ int main() {
         //outward wave
         int round = 0, iteration = 1;
         while (terminate > 0) {
-          //  if (totalrobots <= 250)
-          //      cout << "iteration " << iteration << endl;
+            //  if (totalrobots <= 250)
+            //      cout << "iteration " << iteration << endl;
             for (int i = 0; i < terminate; i++) {
                 bool mov = false;
-            //    if (totalrobots <= 250) {
-              //      cout << "Before move, Layer " << i << ": ";
+                //    if (totalrobots <= 250) {
+                //      cout << "Before move, Layer " << i << ": ";
                 //    for (int j = 0; j < totalPoints[i]; j++) {
-                  //      cout << "(" << ch_layers[i][j].x << ", " << ch_layers[i][j].y << ") ";
-                    //}
+                //      cout << "(" << ch_layers[i][j].x << ", " << ch_layers[i][j].y << ") ";
                 //}
+                //}
+                Point* ch_layers1 = new Point[totalPoints[i]];
+                for (int j = 0; j < totalPoints[i]; j++) {
+                    ch_layers1[j].x = ch_layers[i][j].x;
+                    ch_layers1[j].y = ch_layers[i][j].y;
+                }
+
                 for (int j = 0; j < totalPoints[i]; j++) {
                     Point move_point = move(ch_layers[i][j], ch_layers[i], ch_layers[i + 1], totalPoints[i],
                                             totalPoints[i + 1], internals[i + 1], internalsize[i + 1]);
                     if (move_point.x != ch_layers[i][j].x || move_point.y != ch_layers[i][j].y) {
-                        ch_layers[i][j].x = move_point.x;
-                        ch_layers[i][j].y = move_point.y;
+                        ch_layers1[j].x = move_point.x;
+                        ch_layers1[j].y = move_point.y;
                         mov = true;
                     }
-                }/*
-                if (totalrobots <= 250) {
+                }
+                for (int j = 0; j < totalPoints[i]; j++) {
+                    ch_layers[i][j].x = ch_layers1[j].x;
+                    ch_layers[i][j].y = ch_layers1[j].y;
+
+                    internals[i][j].x = ch_layers1[j].x;
+                    internals[i][j].y = ch_layers1[j].y;
+                }
+                for (int k = 0; k < internalsize[i + 1]; k++) {
+                    internals[i][k + totalPoints[i]].x = internals[i + 1][k].x;
+                    internals[i][k + totalPoints[i]].y = internals[i + 1][k].y;
+                }
+                /*if (totalrobots <= 250) {
                     cout << "After Move, Layer " << i << ": ";
                     for (int j = 0; j < totalPoints[i]; j++) {
                         cout << "(" << ch_layers[i][j].x << ", " << ch_layers[i][j].y << ") ";
@@ -629,6 +681,9 @@ int main() {
                     cout << endl;
                 }*/
                 if (mov) {
+                    round++;
+                }
+                /*if (mov) {
                     round++;
 
                     for (int k = 0; k < totalPoints[i]; k++) {
@@ -640,13 +695,24 @@ int main() {
                         internals[i][k + totalPoints[i]].y = internals[i + 1][k].y;
                     }
 
-                }
+                }*/
                 //cout << internalsize[i + 1] << endl;
             }
+            for (int i = terminate-2;i>=0;i--){
+                for (int j = 0; j<totalPoints[i]; j++) {
+                    internals[i][j].x = ch_layers[i][j].x;
+                    internals[i][j].y = ch_layers[i][j].y;
+                }
+                for (int k = 0; k < internalsize[i + 1]; k++) {
+                    internals[i][k + totalPoints[i]].x = internals[i + 1][k].x;
+                    internals[i][k + totalPoints[i]].y = internals[i + 1][k].y;
+                }
+            }
+
             terminate--;
             iteration++;
-           // if (totalrobots <= 250)
-                //cout << endl;
+            // if (totalrobots <= 250)
+            //cout << endl;
         }
 
         cout <<"Test "<<count+1<<"\t\t\t h = "<<h<< "\t\t\t\t" << round << endl;
